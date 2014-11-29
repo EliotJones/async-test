@@ -1,3 +1,3 @@
 # Trying Git #
 
-This is a bit easier, how about pulling some changes?
+This is a test file for messing around with git.
