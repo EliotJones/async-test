@@ -1,3 +1,3 @@
 # Trying Git #
 
-Why is this so difficult to learn :(
+This is a bit easier...
