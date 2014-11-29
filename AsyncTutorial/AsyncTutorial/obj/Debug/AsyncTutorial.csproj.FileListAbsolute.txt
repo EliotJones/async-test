@@ -1,1 +1,6 @@
 C:\git\async-test\AsyncTutorial\AsyncTutorial\bin\Debug\AsyncTutorial.exe.config
+C:\git\async-test\AsyncTutorial\AsyncTutorial\bin\Debug\AsyncTutorial.exe
+C:\git\async-test\AsyncTutorial\AsyncTutorial\bin\Debug\AsyncTutorial.pdb
+C:\git\async-test\AsyncTutorial\AsyncTutorial\obj\Debug\AsyncTutorial.csprojResolveAssemblyReference.cache
+C:\git\async-test\AsyncTutorial\AsyncTutorial\obj\Debug\AsyncTutorial.exe
+C:\git\async-test\AsyncTutorial\AsyncTutorial\obj\Debug\AsyncTutorial.pdb
