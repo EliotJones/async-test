@@ -199,9 +199,9 @@ This is achieved by changing the body of the method as follows:
 	    return slugs;
 	}
 
-This is a bit confusing, the method is declared to return ```Task<IList<Slug>>``` but the method body returns ```IList<Slug>```. This is because the compiler can be thought of as wrapping the method up into a Task behind the scenes.
+This is a bit confusing, the method is declared to return ```Task<IList<Slug>>``` but the method body returns an ```IList<Slug>```. This is because the compiler can be thought of as wrapping the method up into a Task behind the scenes.
 
-We have used await in the body of the method to tell the async method to wait for the Prime Finder to complete.
+We have used ```await``` in the body of the method to tell the async method to wait for the Prime Finder to complete.
 
 Because [Console Applications cannot have an async main method][link1] we have to 'unwrap' our async call at some point. To do this I created another method in ```SlugService``` that main actually calls to, Stephen Cleary outlines how to do this properly for console apps in the link but I'm using it here to illustrate a point:
 
@@ -223,13 +223,36 @@ Async works in a quite different way to parallel execution and async execution i
 
 ![The SlugService returns when it hits await. It then executes fully for Result](http://eliot-jones.com/Images/asynctutorial/AsyncCallStack.png)
 
-This is all terribly confusing. Basically at the point the code execution hits ```await``` in ```GetSlugsAsync``` it **returns to the caller**, in this case ```GetSlugsAsyncCaller```, this is illustrated with the thicker blue arrow. The execution of that method (GetSlugsAsyncCaller) continues. It is then blocked by the call to result and the rest of the ```GetSlugsAsync``` method executes in the normal way.
+This is all terribly confusing. Basically at the point the code execution hits ```await``` in ```GetSlugsAsync``` it **returns to the caller**, in this case ```GetSlugsAsyncCaller```, this is illustrated with the thicker blue arrow. The execution of that method (GetSlugsAsyncCaller) continues. It is then blocked by the call to ```task.Result``` and the rest of the ```GetSlugsAsync``` method executes in the normal way.
 
-Let's reiterate that; ```await``` **returns execution to the caller** and the caller continues to execute normally. Because we started the PrimeFinder task this executes in Parallel while we're back in the GetSlugsAsyncCaller method which is why the Thread.Sleep(1000) in that method doesn't increase the execution time  So what's the benefit of this?
+Let's reiterate that; ```await``` **returns execution to the caller** and the caller continues to execute normally. Because we started the PrimeFinder task this executes in parallel while we're back in the ```GetSlugsAsyncCaller``` method which is why the ```Thread.Sleep(1000)``` in that method doesn't increase the execution time. However the actual ```GetSlugsAsync``` method isn't parallel with respect to the flow inside its body, the ```await``` is blocking since the PrimeFinder task must return a result at this point.
 
 ### Purpose of Async
 
+So the async/await doesn't give us any (parallel) execution time benefit inside the ```GetSlugsAsync``` method itself. It's nice to continue to execute the calling method for a bit but this is of limited use. The calling method generally needs the result of the method called at some point in its body and because waiting for the result is blocking we don't gain much benefit.
 
+So what's the point?
+
+Well, the console app example falls down because it is not a good use of async. Async is like a virus that spreads through your code (not in a bad way), it only really works where the full call stack consists of async methods, you generally lose any benefit when you have to call ```.Wait()``` or ```.Result``` on an async method.
+
+Because you can't have an async main method in your console app (it would return control to the Operating System which would mess everything up) it's hard to demonstrate the advantages in this type of app.
+
+It's most obviously useful in WPF and ASP.NET applications. These both allow the methods called to return an async method to the caller:
+
++ In WPF the async method returns control to the UI thread on a call to ```await``` in the code-behind, this means the UI thread continues to be active while the async event is dealt with on another thread.
++ In ASP.NET the async controller action returns control to the application pool threads in IIS. This means the server can respond to other requests while the original request continues to be handled in another thread. Therefore if we only have 50 threads in our application pool to respond to website requests we're not tying them up dealing with long-running tasks and they can more quickly be used to respond to further requests.
+
+### Further Reading
+
+This was a very simple introduction trying to clear up a confusing subject. Hopefully with the understanding you may/may not have gained from this tutorial you can go on to read more about async with the concept being slightly clearer.
+
+[Stephen Cleary][link2] is *the* expert on async in C#, therefore it's not surprising he features heavily in the below links and most writing about async/await:
+
++ [Official Microsoft guide to async in MVC][link3]
++ [Stephen's in-depth MSDN article on the benefits of async in ASP.NET][link4]
 
 [link0]:https://github.com/EliotJones/async-test/tree/VS2013Solution/AsyncTutorial
 [link1]:http://blog.stephencleary.com/2012/02/async-console-programs.html
+[link2]:http://stephencleary.com/
+[link3]:http://www.asp.net/mvc/overview/performance/using-asynchronous-methods-in-aspnet-mvc-4
+[link4]:http://msdn.microsoft.com/en-us/magazine/dn802603.aspx
