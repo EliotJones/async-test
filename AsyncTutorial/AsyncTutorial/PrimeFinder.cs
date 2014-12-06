@@ -6,9 +6,14 @@
 
     public class PrimeFinder
     {
-        public async Task<Int64> FindNthPrimeTask(int n)
+        public Task<Int64> FindNthPrimeTask(int n)
         {
-            return await Task.Run(() => FindNthPrime(n));
+            return Task.Run(() => FindNthPrime(n));
+        }
+
+        public Task<Int64> FindNthPrimeAsync(int n)
+        {
+            return Task.Run(() => FindNthPrime(n));
         }
 
         public Int64 FindNthPrime(int n)
