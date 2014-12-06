@@ -235,12 +235,18 @@ So what's the point?
 
 Well, the console app example falls down because it is not a good use of async. Async is like a virus that spreads through your code (not in a bad way), it only really works where the full call stack consists of async methods, you generally lose any benefit when you have to call ```.Wait()``` or ```.Result``` on an async method.
 
-Because you can't have an async main method in your console app (it would return control to the Operating System which would mess everything up) it's hard to demonstrate the advantages in this type of app.
+Because you can't have an async main method in your console app (it would return control to the Operating System which would mess everything up / close the app) it's hard to demonstrate the advantages in this type of app.
 
-It's most obviously useful in WPF and ASP.NET applications. These both allow the methods called to return an async method to the caller:
+It's most obviously useful in WPF and ASP.NET applications. These both allow the methods called to return an async method at the root level to the caller:
 
-+ In WPF the async method returns control to the UI loop on a call to ```await``` in the code-behind, this means the UI thread continues to be active while the async task is waiting.
-+ In ASP.NET the async controller action returns control to the application pool threads in IIS. This means the server can respond to other requests while the original request waits for its task to complete. Therefore if we only have 50 threads in our application pool to respond to website requests we're not tying them up dealing with long-running tasks and they can more quickly be used to respond to further requests.
++ In WPF the async method returns control to the UI loop on a call to ```await``` in the code-behind, this means the UI thread continues to be active while the async task is processing.
++ In ASP.NET the async controller action returns control to the application pool threads in IIS. This means the server can respond to other requests while the original request waits for its task to complete, generally using async I/O operations such as file I/O. This has a lot to do with **I/O Completion Ports**. Therefore if we only have 50 threads in our application pool to respond to website requests we're not tying them up dealing with long-running tasks and they can more quickly be used to respond to further requests.
+
+The actual way in which true async requests are dealt with in WPF and ASP.NET is different to how it was illustrated in this tutorial. In this tutorial an extra thread was used and blocked while the prime was calculated because this was a CPU calculation and not a good candidate for async. True async operations such as file I/O don't use an extra thread.
+
+See the section titled **"What About the Thread Doing the Asynchronous Work?"** [here][link4]. To quote from that:
+"[...] no thread is required for true asynchronous work. No CPU time is necessary to actually push the bytes out ".
+
 
 ### Further Reading
 
@@ -250,9 +256,11 @@ This was a very simple introduction trying to clear up a confusing subject. Hope
 
 + [Official Microsoft guide to async in MVC][link3]
 + [Stephen's in-depth MSDN article on the benefits of async in ASP.NET][link4]
++ [Windows article on I/O Completion ports which are important for truly async operations][link5].
 
 [link0]:https://github.com/EliotJones/async-test/tree/VS2013Solution/AsyncTutorial
 [link1]:http://blog.stephencleary.com/2012/02/async-console-programs.html
 [link2]:http://stephencleary.com/
 [link3]:http://www.asp.net/mvc/overview/performance/using-asynchronous-methods-in-aspnet-mvc-4
 [link4]:http://msdn.microsoft.com/en-us/magazine/dn802603.aspx
+[link5]:http://msdn.microsoft.com/en-us/library/windows/desktop/aa365198%28v=vs.85%29.aspx
