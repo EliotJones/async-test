@@ -77,7 +77,7 @@ The prime finder gets the **nth** prime for any n. It's written to be quite inef
 
 If you don't understand the maths just ignore it, suffice to say when you call this method with an input of ~50,000 it takes around 8 seconds to return a result.
 
-Finally we need to get our slugs from our data storage. I've not actually implemented a persistence medium for this demo so the SlugGetter does this:
+Finally we need to get our slugs from our data storage. I've not actually implemented a persistence medium for this demo so the SlugGetter does this instead:
 
 	public IList<Slug> GetDataSlugs(int generation)
 	{
@@ -97,7 +97,7 @@ Finally we need to get our slugs from our data storage. I've not actually implem
 	    return slugs;
 	}
 
-The thread sleep in this method slows everything down so the program runs on a timescale which can be easily comprehended.
+The thread sleep in this method slows everything down so the program runs on a timescale which can be easily compared between runs.
 
 ### The Problem with Synchronous Execution
 
