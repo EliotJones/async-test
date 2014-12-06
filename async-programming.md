@@ -239,8 +239,8 @@ Because you can't have an async main method in your console app (it would return
 
 It's most obviously useful in WPF and ASP.NET applications. These both allow the methods called to return an async method to the caller:
 
-+ In WPF the async method returns control to the UI thread on a call to ```await``` in the code-behind, this means the UI thread continues to be active while the async event is dealt with on another thread.
-+ In ASP.NET the async controller action returns control to the application pool threads in IIS. This means the server can respond to other requests while the original request continues to be handled in another thread. Therefore if we only have 50 threads in our application pool to respond to website requests we're not tying them up dealing with long-running tasks and they can more quickly be used to respond to further requests.
++ In WPF the async method returns control to the UI loop on a call to ```await``` in the code-behind, this means the UI thread continues to be active while the async task is waiting.
++ In ASP.NET the async controller action returns control to the application pool threads in IIS. This means the server can respond to other requests while the original request waits for its task to complete. Therefore if we only have 50 threads in our application pool to respond to website requests we're not tying them up dealing with long-running tasks and they can more quickly be used to respond to further requests.
 
 ### Further Reading
 
