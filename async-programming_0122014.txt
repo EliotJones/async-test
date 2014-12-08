@@ -187,7 +187,7 @@ This is achieved by changing the body of the method as follows:
 
 	public async Task<IList<Slug>> GetSlugsAsync(int gen)
 	{
-	    Int64 generationalPrime = await primeFinder.FindNthPrimeAsync(50000 + gen);
+	    Int64 generationalPrime = await primeFinder.FindNthPrimeAsync(50000 + gen).ConfigureAwait(false);
 	
 	    IList<Slug> slugs = slugGetter.GetDataSlugs(gen);
 
@@ -201,7 +201,7 @@ This is achieved by changing the body of the method as follows:
 
 This is a bit confusing, the method is declared to return ```Task<IList<Slug>>``` but the method body returns an ```IList<Slug>```. This is because the compiler can be thought of as wrapping the method up into a Task behind the scenes.
 
-We have used ```await``` in the body of the method to tell the async method to wait for the Prime Finder to complete.
+We have used ```await``` in the body of the method to tell the async method to wait for the Prime Finder to complete. Also note the use of ```ConfigureAwait(false)``` after the call to ```FindNthPrimeAsync()```, this isn't strictly necessary in a Console App but will help to prevent deadlocks in UI/ASP.NET code.
 
 Because [Console Applications cannot have an async main method][link1] we have to 'unwrap' our async call at some point. To do this I created another method in ```SlugService``` that main actually calls to, Stephen Cleary outlines how to do this properly for console apps in the link but I'm using it here to illustrate a point:
 
@@ -257,6 +257,7 @@ This was a very simple introduction trying to clear up a confusing subject. Hope
 + [Official Microsoft guide to async in MVC][link3]
 + [Stephen's in-depth MSDN article on the benefits of async in ASP.NET][link4]
 + [Windows article on I/O Completion ports which are important for truly async operations][link5].
++ [Stephen's guide to async and await][link6]
 
 [link0]:https://github.com/EliotJones/async-test/tree/VS2013Solution/AsyncTutorial
 [link1]:http://blog.stephencleary.com/2012/02/async-console-programs.html
@@ -264,3 +265,4 @@ This was a very simple introduction trying to clear up a confusing subject. Hope
 [link3]:http://www.asp.net/mvc/overview/performance/using-asynchronous-methods-in-aspnet-mvc-4
 [link4]:http://msdn.microsoft.com/en-us/magazine/dn802603.aspx
 [link5]:http://msdn.microsoft.com/en-us/library/windows/desktop/aa365198%28v=vs.85%29.aspx
+[link6]:http://blog.stephencleary.com/2012/02/async-and-await.html
