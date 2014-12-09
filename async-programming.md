@@ -193,7 +193,7 @@ This is achieved by changing the body of the method as follows:
 
 This is a bit confusing, the method is declared to return ```Task<IList<Slug>>``` but the method body returns an ```IList<Slug>```. This is because the compiler can be thought of as wrapping the method up into a Task behind the scenes.
 
-We have used ```await``` in the body of the method to tell the async method to wait for the Prime Finder to complete. Also note the use of ```ConfigureAwait(false)``` after the call to ```FindNthPrimeAsync()```, this isn't strictly necessary in a Console App but will help to prevent deadlocks in UI/ASP.NET code. We also call ```Task.Run()``` on the method rather than in the method implementation as recommended [here][link7].
+We have used ```await``` in the body of the method to tell the async method to wait for the Prime Finder to complete. Also note the use of ```ConfigureAwait(false)``` after the call to ```FindNthPrime()```, this isn't strictly necessary in a Console App but will help to prevent deadlocks in UI/ASP.NET code by ensuring the completed task doesn't ask for the original thread back. We also call ```Task.Run()``` on the method rather than in the method implementation as recommended [here][link7].
 
 Because [Console Applications cannot have an async main method][link1] we have to 'unwrap' our async call at some point. To do this I created another method in ```SlugService``` that main actually calls to, Stephen Cleary outlines how to do this properly for console apps in the link but I'm using it here to illustrate a point:
 
