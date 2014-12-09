@@ -11,11 +11,6 @@
             return Task.Run(() => FindNthPrime(n));
         }
 
-        public Task<Int64> FindNthPrimeAsync(int n)
-        {
-            return Task.Run(() => FindNthPrime(n));
-        }
-
         public Int64 FindNthPrime(int n)
         {
             if (n < 1) throw new ArgumentException();

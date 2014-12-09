@@ -24,7 +24,7 @@
             Stopwatch sw = new Stopwatch();
             sw.Start();
 
-            Int64 generationalPrime = await primeFinder.FindNthPrimeAsync(50000 + gen).ConfigureAwait(false);
+            Int64 generationalPrime = await Task.Run(() => primeFinder.FindNthPrime(50000 + gen)).ConfigureAwait(false);
 
             sw.Stop();
             Console.WriteLine(sw.ElapsedMilliseconds + " Milliseconds getting the nth prime (async)");

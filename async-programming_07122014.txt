@@ -130,10 +130,7 @@ To create a Task for our PrimeFinder we can wrap our normal method in a new Task
 	    return Task.Run(() => FindNthPrime(n));
 	}
 
-```Task.Run()``` instantiates a new Task object and starts it running, it is a slightly nicer version of the .NET 4 TPL ```Task.Factory.StartNew()```. These both provide a shortcut for creating a new Task and then starting it:
-
-	Task t = new Task(() => DoSomething());
-	t.Start();
+```Task.Run()``` instantiates a new Task object and starts it running, it is a slightly nicer version of the .NET 4 TPL ```Task.Factory.StartNew()``` however you should use ```Task.Run()```.
 
 Our method call now returns a Task so in our slug service we need to change the result of the PrimeFinder call to a ```Task<Int64>``` object:
 
@@ -170,24 +167,19 @@ In the meantime a worker thread (in orange) runs the prime finder which takes ab
 
 So we've seen how we can use parallel execution without the async/await keywords. Let's introduce them to our program now.
 
-For our ```PrimeFinder``` we create a wrapper for our method which returns a task just like we did for the Parallel version:
-
-	public Task<Int64> FindNthPrimeAsync(int n)
-	{
-	    return Task.Run(() => FindNthPrime(n));
-	}
+For our ```PrimeFinder``` we do not need a new method, we should [avoid creating asynchronous wrappers over synchronous CPU bound methods][link7].
 
 In ```SlugService``` we create a method with the async keyword in the method declaration. Async methods must return one of the following return types:
  
 + ```Task<T>```
 + ```Task```
-+ ```void```
++ ```void``` (don't return void from an async method due to exception handling)
 
 This is achieved by changing the body of the method as follows:
 
 	public async Task<IList<Slug>> GetSlugsAsync(int gen)
 	{
-	    Int64 generationalPrime = await primeFinder.FindNthPrimeAsync(50000 + gen).ConfigureAwait(false);
+	    Int64 generationalPrime = await Task.Run(primeFinder.FindNthPrime(50000 + gen)).ConfigureAwait(false);
 	
 	    IList<Slug> slugs = slugGetter.GetDataSlugs(gen);
 
@@ -201,7 +193,7 @@ This is achieved by changing the body of the method as follows:
 
 This is a bit confusing, the method is declared to return ```Task<IList<Slug>>``` but the method body returns an ```IList<Slug>```. This is because the compiler can be thought of as wrapping the method up into a Task behind the scenes.
 
-We have used ```await``` in the body of the method to tell the async method to wait for the Prime Finder to complete. Also note the use of ```ConfigureAwait(false)``` after the call to ```FindNthPrimeAsync()```, this isn't strictly necessary in a Console App but will help to prevent deadlocks in UI/ASP.NET code.
+We have used ```await``` in the body of the method to tell the async method to wait for the Prime Finder to complete. Also note the use of ```ConfigureAwait(false)``` after the call to ```FindNthPrimeAsync()```, this isn't strictly necessary in a Console App but will help to prevent deadlocks in UI/ASP.NET code. We also call ```Task.Run()``` on the method rather than in the method implementation as recommended [here][link7].
 
 Because [Console Applications cannot have an async main method][link1] we have to 'unwrap' our async call at some point. To do this I created another method in ```SlugService``` that main actually calls to, Stephen Cleary outlines how to do this properly for console apps in the link but I'm using it here to illustrate a point:
 
@@ -266,3 +258,4 @@ This was a very simple introduction trying to clear up a confusing subject. Hope
 [link4]:http://msdn.microsoft.com/en-us/magazine/dn802603.aspx
 [link5]:http://msdn.microsoft.com/en-us/library/windows/desktop/aa365198%28v=vs.85%29.aspx
 [link6]:http://blog.stephencleary.com/2012/02/async-and-await.html
+[link7]:http://blog.stephencleary.com/2013/11/taskrun-etiquette-examples-dont-use.html
